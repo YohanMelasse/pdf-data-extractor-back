@@ -4,7 +4,6 @@ import Pdf from "pdf-parse";
 const extractData =  async () => {
 try {
   let pdfData = [];
-  let invoiceData = [];
 
   let dataBuffer = fs.readFileSync('/Users/malespion/Downloads/Convocation.AGO.Signé.pdf');
   const pdf = await Pdf(dataBuffer);
@@ -18,20 +17,35 @@ try {
 // replace all ' " ' by "N" using regex.
   const invoiceWithCorrectedCaracters = invoiceAsString.replace(/"/g, "N");
 
-// looking for string which contain this following regex format.
-  const siretMatch = invoiceWithCorrectedCaracters.match(/\d{3} \d{3} \d{3} \d{5}/);
+// An array of all usefull regex for extracting data.
+let matchingregEx = [/\d{3} \d{3} \d{3} \d{5}/, /DE\d{8}/, /07 \d{2} \d{2} \d{2} \d{2}/, /01 \d{2} \d{2} \d{2} \d{2}/];
 
-// recsearch the first index of array 
-// and remove space inside a string between each caracters.
-  const siret = siretMatch[0].replace(/\s/g, '');
 
-// push data into an array.
-  invoiceData.push(["siret", siret]);
 
-  // convert each key/value contain on arrays into a key/value Object.
-  const dataAsObject = Object.fromEntries(invoiceData);
-  console.log(dataAsObject);
 
+// identifers name.
+let mainDataIdentifier = ["siret", "tva", "mobilePhoneNumber","classicPhoneNumber"];
+
+
+// on parcours le tableau en filtrant toute correspondance par rapport à nos regex.
+const matches = matchingregEx
+  .map(regex => ({
+    regex,
+    match: invoiceWithCorrectedCaracters.match(regex)
+  }))
+  .filter(result => result.regex && result.match); 
+
+let invoicesData = [];
+
+// for each elements we add all matching result into a receiving array
+matches.forEach(result => {
+  invoicesData.push(result.match[0]);
+});
+// new key/value object array creating from a mix of two arrays
+const result = mainDataIdentifier.map((key, index) => {
+  return { [key]: invoicesData[index] };
+});
+console.log(result);
 } catch (error) {
   console.error(`An error occured: ${error}`);
 }};
