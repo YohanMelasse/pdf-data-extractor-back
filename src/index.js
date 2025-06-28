@@ -9,7 +9,6 @@ app.use(express.json());
 const port = 3000;
 await extractData();
 
- 
 app.listen(port, () => {
   console.log(`server is running on ${process.env.BASE_URL}:${process.env.PORT}`);
 })
