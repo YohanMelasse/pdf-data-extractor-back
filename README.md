@@ -1,37 +1,84 @@
-# pdf-data-extractor-back
+# PDF Data Extractor - Backend
 
-## démarrer le projet
+## Objectif
 
+Ce service backend permet d'extraire du texte depuis un fichier PDF et d’en analyser le contenu à l’aide d'expressions régulières.
 
-Pour ce projet, j'ai voulu extraire les données d'un pdf.
+Il s'appuie sur `pdf-parse`, une bibliothèque Node.js permettant de transformer un fichier `.pdf` en texte brut exploitable.
 
-J'utilise la bibliothèque _pdf-parse_
-afin de pouvoir parser les données de type _.pdf_.
+---
 
-## Les bibliotèques utilisées.
+## Stack technique
 
-- express.
-- dotenv : Pour l'exécution des variables.
-- pdf-parse: Pour parser les données de documents au format pdf.
+- Node.js
+- Express
+- pdf-parse
+- dotenv
 
-## Installer les packages
-- ``` npm install ```
+---
 
-## problèmes réglés :
+## Installation
 
-Quand j'exécutais la fonction dans le point dans index.js, j'avais l'erreur suivante.
+1. Cloner le dépôt :
 
-`` Error: ENOENT: no such file or directory, open 'C:\\...\\test\\data\\05-versions-space.pdf’``
+   ```bash
+   git clone https://github.com/ton-utilisateur/pdf-data-extractor-back.git
+   cd pdf-data-extractor-back
+   ```
 
-J'ai trouvé la solution dans cet article médium 
+2. Installer les dépendances :
 
-['https://medium.com/@mbmrajatit/%EF%B8%8F-how-a-missing-debug-file-in-pdf-parse-crashed-my-node-js-app-and-how-i-fixed-it-be5ba7077527']
+   ```bash
+   npm install
+   ```
 
-Pour régler le soucis il faut se rendre dans le chemin suivant: node_modules/pdf-parse/lib/index.js et passer  ``let isDebugMode = !module.parent `` à false, car le mode debug est actif par défaut, donc cela peut engendrer ce type de soucis.
+3. Créer un fichier `.env` :
 
-Résumé :
+   ```env
+   PORT=3000
+   ```
 
-> - Lecture du document dans son entier sous forme de texte 
-> - Utilisation de regex pour faire pour retrouver plus facilement certaines données selons certains patterns.
+4. Lancer le serveur :
 
-> - Renvoi de données null (si celle-ci n'existe pas) ou non.
+   ```bash
+   nodemon index.js
+   ```
+
+---
+
+## Problème rencontré
+
+Une erreur apparaissait lors de l'exécution :
+
+```
+Error: ENOENT: no such file or directory, open '.../data/05-versions-space.pdf'
+```
+
+### Analyse
+
+Le module `pdf-parse` active un mode debug par défaut, ce qui peut générer une erreur s'il cherche un fichier absent.
+
+### Solution temporaire
+
+Dans le fichier `node_modules/pdf-parse/lib/index.js`, modifier la ligne :
+
+```js
+let isDebugMode = !module.parent;
+```
+
+en :
+
+```js
+let isDebugMode = false;
+```
+
+> Attention : Modifier directement les fichiers dans `node_modules` est déconseillé. Cette solution est temporaire. Une meilleure approche serait d’utiliser une version corrigée ou de forker la bibliothèque.
+
+---
+
+## Fonctionnement technique
+
+1. Le fichier PDF est envoyé via POST (multipart/form-data).
+2. Le backend lit et parse le fichier via `pdf-parse`.
+3. Le texte brut est analysé avec des expressions régulières.
+4. Les données extraites sont renvoyées en JSON.
