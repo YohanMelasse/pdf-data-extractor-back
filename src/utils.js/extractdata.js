@@ -1,47 +1,36 @@
 import fs from "fs";
 import Pdf from "pdf-parse";
 
-const extractData =  async () => {
-try {
-  //let pdfData = [];
-
-  let dataBuffer = fs.readFileSync('/Users/malespion/Downloads/Convocation.AGO.Signé.pdf');
-  const pdf = await Pdf(dataBuffer);
-  const data = pdf.text;
-
-// replace all ' " ' by "N" using regex.
-  const invoiceWithCorrectedCaracters = data.replace(/"/g, "N");
-
-// An array of all usefull regex for extracting data.
-let matchingregEx = [/\d{3} \d{3} \d{3} \d{5}/, /DE\d{8}/, /07 \d{2} \d{2} \d{2} \d{2}/, /01 \d{2} \d{2} \d{2} \d{2}/];
-
-// identifers name.
-let mainDataIdentifier = ["siret", "tva", "mobilePhoneNumber","classicPhoneNumber"];
 
 
-// on parcours le tableau en filtrant toute correspondance par rapport à nos regex.
-const matches = matchingregEx
-  .map(regex => ({
-    regex,
-    match: invoiceWithCorrectedCaracters.match(regex)
-  }))
-  .filter(result => result.regex && result.match); 
+const extractData = async () => {
 
-let invoicesData = [];
+  const patterns = {
+  siret: /\d{3} \d{3} \d{3} \d{5}/,
+  tva: /(FR\d{8}|DE\d{8})/,
+  mobilePhoneNumber: /(07 ([0-9]{2} [0-9]{2} [0-9]{2} [0-9]{2})|06 ([0-9]{2} [0-9]{2} [0-9]{2} [0-9]{2}))/,
+  classicPhoneNumber: /01 ([0-9]{2} [0-9]{2} [0-9]{2} [0-9]{2})/
+};
 
-// for each elements we add all matching result into a receiving array
-matches.forEach(result => {
-  invoicesData.push(result.match[0]);
-});
-// new key/value object array creating from a mix of two arrays
-const result = mainDataIdentifier.map((key, index) => {
-  return { [key]: invoicesData[index] };
-});
+  try {
+    const dataBuffer = fs.readFileSync('/Users/malespion/Downloads/Facture n° F5008872.pdf');
+    const pdf = await Pdf(dataBuffer);
+    const data = pdf.text;
 
-console.log(result);
+    let extractedData = {};
 
-} catch (error) {
-  console.error(`An error occured: ${error}`);
-}};
+    for (const [key, regex] of Object.entries(patterns)) {
+      const match = data.match(regex);
+      extractedData[key] = match ? match[0] : null;
+    }
 
-export {extractData};
+    console.log(extractedData)
+  
+    return extractedData;
+
+  } catch (error) {
+    console.error(`An error occurred: ${error}`);
+  }
+};
+
+export { extractData };
