@@ -1,25 +1,37 @@
 # pdf-data-extractor-back
 
-## _29 juin 2025_
+## démarrer le projet
 
-> Tout d'abord, il faut interpréter le document et lire les données.
 
-> J'ai utilisé la bibliothèque pdf-parser, pour parser les données du document.
+Pour ce projet, j'ai voulu extraire les données d'un pdf.
 
-> Cette bibliothèque fournit une propriété (text) permettant d'extraire le texte du pdf.
+J'utilise la bibliothèque _pdf-parse_
+afin de pouvoir parser les données de type _.pdf_.
 
-> Je dois préparer une variables ayant pour valeur des tableaux vide pour plus tard.
+## Les bibliotèques utilisées.
 
-> Je stocke dans une variable, la chaîne de caractère extraite.
+- express.
+- dotenv : Pour l'exécution des variables.
+- pdf-parse: Pour parser les données de documents au format pdf.
 
-> Le docuement fournit depuis ma machine remplaçait les "N" par ' " ', J'ai dû utiliser la méthode replace pour remplacer le caractère corompu.
+## Installer les packages
+- ``` npm install ```
 
-> J'ai créé deux tableaux : le premier tableau contient une liste de regex et l'autre des chaîne de caractère qui servir d'identifiant.
+## problèmes réglés :
 
-> Pour extraire des données en particulier et les extraire, je dois trouver une correspondance entre les expression régulières et des chaînes de caractères.
+Quand j'exécutais la fonction dans le point dans index.js, j'avais l'erreur suivante.
 
->Dans un but d'extraction de données et pour le DRY : Don't repeat yourself, j'ai dû faire une boucle et filtrer les chaînes de caractères correspondantes à chaque expression régulière.
+`` Error: ENOENT: no such file or directory, open 'C:\\...\\test\\data\\05-versions-space.pdf’``
 
-> Puis les ajouter dans le tableau vide initialisé précédemment. (On obtient les valeurs extraites).
+J'ai trouvé la solution dans cet article médium 
 
-> Pour finir, je dois créer un nouveau tableau d'objet clé/valeur à partir de deux tableau : Le tableau de valeurs extraites, et le tableau d'didentifant sous forme de chaîne de caractère.
+['https://medium.com/@mbmrajatit/%EF%B8%8F-how-a-missing-debug-file-in-pdf-parse-crashed-my-node-js-app-and-how-i-fixed-it-be5ba7077527']
+
+Pour régler le soucis il faut se rendre dans le chemin suivant: node_modules/pdf-parse/lib/index.js et passer  ``let isDebugMode = !module.parent `` à false, car le mode debug est actif par défaut, donc cela peut engendrer ce type de soucis.
+
+Résumé :
+
+> - Lecture du document dans son entier sous forme de texte 
+> - Utilisation de regex pour faire pour retrouver plus facilement certaines données selons certains patterns.
+
+> - Renvoi de données null (si celle-ci n'existe pas) ou non.
