@@ -78,7 +78,7 @@ let isDebugMode = false;
 
 ## Fonctionnement technique
 
-1. Le fichier PDF est envoyé via POST (multipart/form-data).
+1. Le chemin vers le fichier doit être rentré à la main et doit être une facture.
 2. Le backend lit et parse le fichier via `pdf-parse`.
 3. Le texte brut est analysé avec des expressions régulières.
 4. Les données extraites sont renvoyées en JSON.
